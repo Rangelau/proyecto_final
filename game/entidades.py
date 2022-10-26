@@ -1,20 +1,20 @@
-import pygame, random
+import pygame as pg
 
 Ancho = 800
 Alto = 600
 
 negro = (0, 0, 0)
 
-pygame.init()
-pygame.mixer.init()
-pantalla_principal = pygame.display.set_mode((Ancho, Alto))
-pygame.display.set_caption("Futuplanet")
-clock = pygame.time.Clock()
+pg.init()
+pg.mixer.init()
+pantalla_principal = pg.display.set_mode((Ancho, Alto))
+pg.display.set_caption("Futuplanet")
+clock = pg.time.Clock()
 
-class Jugador(pygame.sprite.Sprite):
+class Jugador(pg.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("game/imagenes/nave.png").convert()
+        self.image = pg.image.load("game/imagenes/nave.png").convert()
         self.image.set_colorkey(negro)
         self.rect = self.image.get_rect()
         self.rect.centerx = Ancho // 2
@@ -27,122 +27,49 @@ class Jugador(pygame.sprite.Sprite):
 
     def update(self):
         self.speed_x = 0
-        keystate = pygame.key.get_pressed()
-        if keystate[pygame.K_DOWN]:
-            self.vx = -5
-        if keystate[pygame.K_UP]:
-            self.vx = 5
+        keystate = pg.key.get_pressed()
+        if keystate[pg.K_DOWN]:
+            self.vy = 5
+        if keystate[pg.K_UP]:
+            self.vy = -5
             
-        self.rect.centerx +=self.vx
+        self.rect.centery +=self.vy
         
-        if self.rect.right > Ancho:
-            self.rect.right = Ancho
-        if self.rect.left < 0:
-            self.rect.left = 0
+        if self.rect.bottom > Alto:
+            self.rect.bottom = Alto
+        if self.rect.top< 0:
+            self.rect.top = 0
         
         
 
-lista_objetos = pygame.sprite.Group()
+lista_objetos = pg.sprite.Group()
 
 
 jugador = Jugador()
 lista_objetos.add(jugador)
 
 
-# Game Loop
+
 movimiento_jugador = True
 while movimiento_jugador:
-    # Keep loop running at the right speed
+  
     clock.tick(60)
-    # Process input (events)
-    for event in pygame.event.get():
-        # check for closing window
-        if event.type == pygame.QUIT:
+
+    for evento in pg.event.get():
+      
+        if evento.type == pg.QUIT:
             movimiento_jugador = False
         
 
-    # Update
+    # 
     lista_objetos.update()
 
-    #Draw / Render
+
     pantalla_principal.fill(negro)
     lista_objetos.draw(pantalla_principal)
-    # *after* drawing everything, flip the display.
-    pygame.display.flip()
+   
+    pg.display.flip()
 
-pygame.quit()
-
-
-"""
-Ancho = 800
-Alto = 600
-
-negro = (0, 0, 0)
-
-pygame.init()
-pygame.mixer.init()
-screen = pygame.display.set_mode((Ancho, Alto))
-pygame.display.set_caption("Futuplanet")
-clock = pygame.time.Clock()
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("game/imagenes/nave.png").convert()
-        self.image.set_colorkey(negro)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = Ancho // 2
-        self.rect.centery = Alto//2
-        self.w=100
-        self.h=56
-        
-        self.speed_x = 0
-        self.speed_y=0
-
-    def update(self):
-        self.speed_x = 0
-        keystate = pygame.key.get_pressed()
-        if keystate[pygame.K_DOWN]:
-            self.speed_x = -5
-        if keystate[pygame.K_UP]:
-            self.speed_x = 5
-            
-        self.rect.centerx +=self.speed_x
-        
-        if self.rect.right > Ancho:
-            self.rect.right = Ancho
-        if self.rect.left < 0:
-            self.rect.left = 0
-        
-        
-
-all_sprites = pygame.sprite.Group()
+pg.quit()
 
 
-player = Player()
-all_sprites.add(player)
-
-
-# Game Loop
-running = True
-while running:
-    # Keep loop running at the right speed
-    clock.tick(60)
-    # Process input (events)
-    for event in pygame.event.get():
-        # check for closing window
-        if event.type == pygame.QUIT:
-            running = False
-        
-
-    # Update
-    all_sprites.update()
-
-    #Draw / Render
-    screen.fill(negro)
-    all_sprites.draw(screen)
-    # *after* drawing everything, flip the display.
-    pygame.display.flip()
-
-pygame.quit()
-"""
