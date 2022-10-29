@@ -187,7 +187,6 @@ while  movimiento_jugador:
         if jugador.energia_nave<=0:
             movimiento_jugador=False
         
-
     pantalla_principal.blit(fondo_pantalla,(0,0))
     lista_objetos.draw(pantalla_principal)
     
