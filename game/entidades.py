@@ -1,5 +1,6 @@
 
 
+from cmath import rect
 import pygame as pg
 import random 
 
@@ -14,7 +15,7 @@ verde=(0,255,0)
 pg.init()
 pg.mixer.init()
 pantalla_principal = pg.display.set_mode((Ancho, Alto))
-pg.display.set_caption("Futuplanet")
+pg.display.set_caption("Futuplanet") 
 clock = pg.time.Clock()
 
 #creamos una funcion draw_tex que nos permita al llamarla solo poner los parametros de la funcion y diuje
@@ -26,7 +27,7 @@ def pintar_texto(pantalla,texto,tamaño,centerx,centery):
     texto_rect.midtop= (centerx,centery)
     pantalla.blit(texto_pantalla,texto_rect)
     
-def pintar_barra_energia(pantalla,centerx,centery,porcentaje):
+def pintar_barra_vida(pantalla,centerx,centery,porcentaje):
     longitud_barra=100
     ancho_barra=10
     porcentaje_barra_allenar=(porcentaje/100)*longitud_barra
@@ -45,7 +46,7 @@ class Jugador(pg.sprite.Sprite):
         self.rect.centery = Alto//2
         
         self.vy=0
-        self.energia_nave=100
+        self.barra_vida=100
 
     def update(self):
         
@@ -80,11 +81,11 @@ class Enemigos(pg.sprite.Sprite):
          self.image.set_colorkey(negro)
         
          self.rect=self.image.get_rect()
-         self.rect.centerx= random.randrange(0,900)
+         self.rect.centerx= random.randrange(400,900)
          #self.rect.centerx= random.randrange(300,900)
           
         # self.rect.centerx= random.randint(100,500) 
-         self.rect.centery= random.randrange(100,500)
+         self.rect.centery= random.randrange(100,500) 
          self.vx=random.randint(1,4)
          self.vy=random.randint(1,4)
                
@@ -110,18 +111,54 @@ class Bala(pg.sprite.Sprite):
         
     def update(self):
         self.rect.centerx+=self.vx
-        #if self.rect.left < 0:
+        #   if self.rect.left < 0:
          #    self.kill()
         #vamos a desaparcer las balasde las listas para que no me ocupe espacio de memoria
+
+
+class Explosion(pg.sprite.Sprite):
+	def __init__(self, center):
+		super().__init__()
+		self.image = animacion_explosion[0]
+		self.rect = self.image.get_rect()
+		self.rect.center = center
+		self.fotograma = 0 #esta variable es la que va a ir aumentando para que salga el valor de la imagen para ir dando la ilusión de la animacion
+		self.actualizacion = pg.time.get_ticks()
+		self.velocidad_explosion = 50 #velocidad de la explosion
         
 
-        #Creamos una lista vacia que nos permitio cargar las imagenes con el fin de que cuando salgan los asteroides se vean en tamaños diferentes             
+	def update(self):
+		tiempo_actualexplosion= pg.time.get_ticks()
+		if tiempo_actualexplosion - self.actualizacion> self.velocidad_explosion:
+                    self.actualizacion=tiempo_actualexplosion
+                    self.fotograma += 1
+                    if self.fotograma ==len(animacion_explosion):
+                        self.kill()
+                    else:
+                        centery=self.rect.center
+                        #centerx=self.rect.center
+                        self.image=animacion_explosion[self.fotograma]
+                        self.rect=self.image.get_rect()
+                        self.rect.center=centery
+                        #self.rect.center=centerx
+
+#Creamos una lista vacia que nos permitio cargar las imagenes con el fin de que cuando salgan los asteroides se vean en tamaños diferentes             
 enemigos_imagenes=[]
 fotos_enemigos=["game/imagenes/a1.png","game/imagenes/a4.png","game/imagenes/a5.png","game/imagenes/a7.png"]             
 #interamos sobre la lista enemigos y agregamos a la lista vacia la imagen que va correspondiendo
 for imagen in fotos_enemigos:
     enemigos_imagenes.append(pg.image.load(imagen).convert())
-		
+
+
+#animacion explosiones
+
+animacion_explosion=[]  		
+for i in range (6):
+    animacion= "game/imagenes/explo0{}.png".format(i)
+    imagen=pg.image.load(animacion).convert()
+    imagen.set_colorkey(negro) 
+    img_tranf=pg.transform.scale(imagen,(70,70))
+    animacion_explosion.append(img_tranf)
 
 fondo_pantalla=pg.image.load("game/imagenes/fondo.jpg").convert()
 disparo=pg.mixer.Sound("game/sonido/burst fire.mp3")
@@ -140,8 +177,8 @@ lista_balas=pg.sprite.Group()
 
 jugador = Jugador()
 lista_objetos.add(jugador)
-
-for i in range (4):
+ 
+for i in range (2):
     enemigo=Enemigos()
     lista_objetos.add(enemigo)
     lista_enemigos.add(enemigo)
@@ -164,27 +201,34 @@ while  movimiento_jugador:
                   jugador.disparo()
     
     lista_objetos.update()
+    
     #colisiones enemigo con  bala de un grupo contra otro grupo
     colisiones=pg.sprite.groupcollide(lista_enemigos,lista_balas,True,True)
+    #colisiones=pg.sprite.groupcollide(lista_enemigos,lista_balas,True,True)
     
-    for choque in colisiones:
-        puntaje+=1
-        #sonido_explosicion.play()
+    for colision in colisiones:
+        puntaje +=10
+        #explosion=Explosion(colision.rect.center)
+        #lista_objetos.add(explosion)
         "creamos nuevamente los enemigos para que cuando me choquen aparezca nuevamente"
         enemigo=Enemigos()
         lista_objetos.add(enemigo)
-        lista_enemigos.add(enemigo)  
+        lista_enemigos.add(enemigo)   
  
     
     #comprobaremos las colisiones de los enemigos con el jugardor
     
     colisiones=pg.sprite.spritecollide(jugador,lista_enemigos,True)
+    #colisiones=pg.sprite.groupcollide(lista_objetos,lista_enemigos,True,True)
     for choque in colisiones:
-        jugador.energia_nave -=10
+        jugador.barra_vida -=25 
+        #sonido_explosicion.play()
+        explosion=Explosion(choque.rect.center)
+        lista_objetos.add(explosion)
         enemigo=Enemigos()
         lista_objetos.add(enemigo)
         lista_enemigos.add(enemigo)
-        if jugador.energia_nave<=0:
+        if jugador.barra_vida<=0:
             movimiento_jugador=False
         
     pantalla_principal.blit(fondo_pantalla,(0,0))
@@ -192,8 +236,9 @@ while  movimiento_jugador:
     
     #puntaje
     pintar_texto(pantalla_principal,str(puntaje),40,Ancho//2,10)
+    
     #vidas
-    pintar_barra_energia(pantalla_principal,5,5,jugador.energia_nave)
+    pintar_barra_vida(pantalla_principal,5,5,jugador.barra_vida)
    
     pg.display.flip()
 
