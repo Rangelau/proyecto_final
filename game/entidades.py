@@ -1,6 +1,3 @@
-
-
-from cmath import rect
 import pygame as pg
 import random 
 
@@ -243,5 +240,141 @@ while  movimiento_jugador:
     pg.display.flip()
 
 pg.quit()
+"""""
+
+"PANTALLA "
+class Pantalla_de_partida:
+    def __init__(self,pantalla):
+        self.pantalla_principal= pantalla
+        pg.display.set_caption("Futuplanet")
+        self.imagenFondo=pg.image.load("game\imagenes\fondo_inicio.jpg")
+        self.fuente=pg.font.Font("game\fuentes\Roboto-Medium.ttf",40)
 
 
+
+    def play(self):
+
+        en_juego=True
+        while en_juego:
+            num_vidas=3
+            nivel_juego=1
+
+            partida=False
+            inicio=True
+
+            while inicio:
+                for event in pg.event.get():
+                    if event.type == pg.QUIT:
+                        inicio = False
+                        en_juego = False
+
+                    if event.type == pg.KEYDOWN:
+                        if event.key == pg.K_RETURN:
+                            inicio = False
+                            partida = True
+
+                #self.pantalla_principal.fill(negro)
+
+                mensaje_bienvenida = [
+                    "                      MISIÓN A FUTUPLANET",
+                    "     Tras meses de viaje en misión a FUTUPLANET se",
+                    "    interponen en tu camino tres cinturones de asteroides",
+                    "  que te dificultan el paso y amenazan con no dejarte pasar.",
+                    "   Intenta Chocarlos para conseguir finalizar tu misión.",
+                    "",
+                    "                Pulsa 'ENTER' para empezar"
+                    ]
+                
+                for frase in mensaje_bienvenida:
+                    bienvenida=self.fuente.render(frase,True,blanco)  
+                    self.pantalla_principal.blit(bienvenida,(150,80))
+
+                pg.display.update()
+
+
+#creamos un ventana para todo el juego, luego llamamos la clase pantalla de partida y le ponemos como parametro la ventana que creamos y del juego ejecutamos la funcion play
+ventana_juego= pg.display.set_mode((Ancho,Alto))
+juego=Pantalla_de_partida(ventana_juego)
+juego.play()
+             
+                
+                
+
+
+
+
+for i in range (2):
+    enemigo=Enemigos()
+    lista_objetos.add(enemigo)
+    lista_enemigos.add(enemigo)
+
+
+
+
+puntaje=0
+#la musica se va a reproducir durante todo el juego para eso es el loops=-1
+
+pg.mixer.music.play(loops=-1)
+
+"""
+
+"""""
+movimiento_jugador = True
+while  movimiento_jugador:
+    clock.tick(60)
+
+    for evento in pg.event.get():
+        if evento.type == pg.QUIT:
+            movimiento_jugador = False
+            
+        elif evento.type==pg.KEYDOWN:
+             if evento.key==pg.K_SPACE:
+                  jugador.disparo()
+    
+    lista_objetos.update()
+"""
+""""   
+    #colisiones enemigo con  bala de un grupo contra otro grupo
+    colisiones=pg.sprite.groupcollide(lista_enemigos,lista_balas,True,True)
+    
+    for colision in colisiones:
+        puntaje +=10
+        #explosion=Explosion(colision.rect.center)
+        #lista_objetos.add(explosion)
+        "creamos nuevamente los enemigos para que cuando me choquen aparezca nuevamente"
+        enemigo=Enemigos()
+        lista_objetos.add(enemigo)
+        lista_enemigos.add(enemigo)   
+ 
+    
+    #comprobaremos las colisiones de los enemigos con el jugardor
+    
+    colisiones=pg.sprite.spritecollide(jugador,lista_enemigos,True)
+    
+    for choque in colisiones:
+        jugador.barra_vida -=25 
+        #sonido_explosicion.play()
+        explosion=Explosion(choque.rect.center)
+        lista_objetos.add(explosion)
+        enemigo=Enemigos()
+        lista_objetos.add(enemigo)
+        lista_enemigos.add(enemigo)
+        if jugador.barra_vida<=0:
+            movimiento_jugador=False
+
+"""
+""""       
+    pantalla_principal.blit(fondo_pantalla,(0,0))
+    lista_objetos.draw(pantalla_principal)
+    
+    #puntaje
+    pintar_texto(pantalla_principal,str(puntaje),40,Ancho//2,10)
+    
+    #vidas
+    pintar_barra_vida(pantalla_principal,5,5,jugador.barra_vida)
+   
+    pg.display.flip()
+
+
+pg.quit()
+"""
